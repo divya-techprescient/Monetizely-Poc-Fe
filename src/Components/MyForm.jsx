@@ -40,7 +40,9 @@ const MyForm = () => {
       const contentDisposition = response.headers["content-disposition"];
       const fileNameRegex = /filename="(.+)"/;
       const matches = fileNameRegex.exec(contentDisposition);
-      const fileName = matches ? matches[1] : `${first_name} ${last_name}.pdf`;
+      const fileName = matches
+        ? matches[1]
+        : `${values.first_name} ${values.last_name}.pdf`;
       const fileBlob = await response.data;
       const fileUrl = URL.createObjectURL(fileBlob);
       const link = document.createElement("a");
