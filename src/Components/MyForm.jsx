@@ -4,7 +4,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { TextField } from "@mui/material";
 import axios from "axios";
-import fileDownload from "js-file-download";
 
 const MyForm = () => {
   const paperStyle = {
@@ -16,16 +15,16 @@ const MyForm = () => {
     border: "2px solid black",
   };
   const initialValues = {
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     address: "",
     salary: "",
     age: "",
   };
 
   const validationSchema = Yup.object({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
+    first_name: Yup.string().required("First Name is required"),
+    last_name: Yup.string().required("Last Name is required"),
     address: Yup.string().required("Address is required"),
     salary: Yup.string().required("Salary is required"),
     age: Yup.string().required("Age is required"),
@@ -35,46 +34,25 @@ const MyForm = () => {
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/pdf/generate",
-        values
+        values,
+        { responseType: "blob" }
       );
-
-      const url = response.data.url;
-      const fileName = "example.pdf";
-
-      const fileResponse = await fetch(url);
-      const fileBlob = await fileResponse.blob();
-
+      const contentDisposition = response.headers["content-disposition"];
+      const fileNameRegex = /filename="(.+)"/;
+      const matches = fileNameRegex.exec(contentDisposition);
+      const fileName = matches ? matches[1] : `${first_name} ${last_name}.pdf`;
+      const fileBlob = await response.data;
       const fileUrl = URL.createObjectURL(fileBlob);
-
       const link = document.createElement("a");
       link.href = fileUrl;
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
-
       URL.revokeObjectURL(fileUrl);
     } catch (error) {
       console.log(error);
     }
   };
-
-  // const handleSubmit = async (values) => {
-  //   try {
-  //     const response = await axios.post(
-  //       "http://127.0.0.1:8000/pdf/generate",
-  //       values
-  //     );
-  //     const presignedUrl = response.data.presignedUrl;
-  //     const fileName = "example.pdf";
-  //     const fileType = "application/pdf";
-  //     const fileResponse = await axios.get(presignedUrl, {
-  //       responseType: "arraybuffer",
-  //     });
-  //     fileDownload(fileResponse.data, fileName, fileType);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   return (
     <Box style={paperStyle}>
@@ -90,13 +68,13 @@ const MyForm = () => {
                 <Field
                   as={TextField}
                   type="text"
-                  name="firstName"
+                  name="first_name"
                   label="First Name"
                   required
                   fullwidth
                   helperText={
                     <ErrorMessage
-                      name="firstName"
+                      name="first_name"
                       component={FormHelperText}
                       error
                     />
@@ -108,12 +86,12 @@ const MyForm = () => {
                 <Field
                   as={TextField}
                   type="text"
-                  name="lastName"
+                  name="last_name"
                   label="Last Name"
                   required
                   helperText={
                     <ErrorMessage
-                      name="lastName"
+                      name="last_name"
                       component={FormHelperText}
                       error
                     />
