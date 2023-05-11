@@ -183,7 +183,12 @@ const MyForm = () => {
                     {({ push, remove, form }) => (
                       <>
                         {form.values.packages.map((_, index) => (
-                          <Grid container spacing={2} key={index}>
+                          <Grid
+                            container
+                            spacing={2}
+                            key={index}
+                            style={{ marginBottom: "16px" }}
+                          >
                             <Grid item xs={3}>
                               <Field
                                 as={TextField}
